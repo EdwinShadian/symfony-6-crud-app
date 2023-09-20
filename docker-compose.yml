@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/php8.1/Dockerfile
+    container_name: symfony-6-crud-app
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      XDEBUG_MODE: '${XDEBUG_MODE}'
+      XDEBUG_CONFIG: '${XDEBUG_CONFIG}'
+    volumes:
+      - .:/var/www/html
+    networks:
+      - app_network
+
+  nginx:
+    image: nginx:stable
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./var/log/nginx:/var/log/nginx
+    networks:
+      - app_network
+
+  database:
+    image: postgres:${POSTGRES_VERSION:-15}-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    ports:
+      - "5432:5432"
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+    networks:
+      - app_network
+
+volumes:
+  database_data:
+
+networks:
+  app_network:
+    driver: bridge

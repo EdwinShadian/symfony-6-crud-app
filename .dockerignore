@@ -1,0 +1,3 @@
+docker/db/data
+docker/nginx/logs
+docker/php8.1/php-fpm/logs
